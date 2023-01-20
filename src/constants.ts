@@ -6,6 +6,7 @@ export const commandNames = {
   mouseUp: 'mouse_up',
   mouseLeft: 'mouse_left',
   mouseRight: 'mouse_right',
+  mousePosition: 'mouse_position',
 };
 
 export const directions = { left: 'left', right: 'right', up: 'up', down: 'down' };

@@ -1,3 +1,4 @@
+import { Duplex } from 'stream';
 import { mouse, Point, straightTo } from '@nut-tree/nut-js';
 import { directions } from './constants';
 import { getCurrentMousePoint } from './helpers';
@@ -27,4 +28,11 @@ export const mouseMove = async (commandName: string, length: number) => {
   }
 
   await mouse.move(straightTo(newPoint));
+};
+
+export const sendMousePosition = async (duplexStream: Duplex) => {
+  const position = await getCurrentMousePoint();
+  console.log('x=', position.x, ' y=', position.y);
+
+  duplexStream.write(`mouse_position ${position.x},${position.y}`);
 };

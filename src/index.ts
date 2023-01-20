@@ -1,10 +1,10 @@
 import { Command } from './types';
 import { drawCircle, drawRectangle, drawSquare } from './draw-figures';
 import WebSocketServer, { createWebSocketStream } from 'ws';
-import { getCurrentMousePoint, parseMessage } from './helpers';
+import { parseMessage } from './helpers';
 import { commandNames } from './constants';
 import { Duplex } from 'stream';
-import { mouseMove } from './mouse-move';
+import { mouseMove, sendMousePosition } from './mouse-move';
 
 const runCommand = async (command: Command, duplexStream: Duplex) => {
   const { name: commandName, params } = command;
@@ -27,16 +27,16 @@ const runCommand = async (command: Command, duplexStream: Duplex) => {
     case commandNames.mouseRight:
       await mouseMove(commandName, firstParam);
       break;
+    case commandNames.mousePosition:
+      await sendMousePosition(duplexStream);
+      break;
     default:
       break;
   }
 
-  duplexStream.write(commandName);
-
-  const position = await getCurrentMousePoint();
-  console.log('x=', position.x, ' y=', position.y);
-
-  duplexStream.write(`mouse_position ${position.x},${position.y}`);
+  /* duplexStream.write(commandName, () => {
+     console.log(commandName, ' finished');
+   });*/
 };
 
 const onConnect = (ws: WebSocketServer) => {
@@ -55,14 +55,14 @@ const onConnect = (ws: WebSocketServer) => {
   });
 
   ws.on('close', () => {
-    console.log('the client has connected');
-  });
-
-  ws.on('message', (message) => {
-    console.log('server=', message.toString());
+    console.log('closed');
   });
 };
 
 const wsServer = new WebSocketServer.Server({ port: 8080 });
 
 wsServer.on('connection', onConnect);
+
+wsServer.on('message', (message) => {
+  console.log('server0=', message.toString());
+});
