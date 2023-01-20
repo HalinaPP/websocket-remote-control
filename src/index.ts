@@ -1,5 +1,5 @@
 import { Command } from './types';
-import { drawCircle } from './draw-figures';
+import { drawCircle, drawSquare } from './draw-figures';
 import WebSocketServer, { createWebSocketStream } from 'ws';
 import { getCurrentMousePoint, parseMessage } from './helpers';
 import { commandNames } from './constants';
@@ -7,17 +7,26 @@ import { Duplex } from 'stream';
 import { mouseMove } from './mouse-move';
 
 const runCommand = async (command: Command, duplexStream: Duplex) => {
-  switch (command.name) {
+  const { name: commandName, params } = command;
+  const firstParam = Number(params[0]);
+
+  switch (commandName) {
     case commandNames.drawCircle:
-      await drawCircle(Number(command.params[0]));
-      duplexStream.write(command.name);
+      await drawCircle(firstParam);
+      duplexStream.write(commandName);
+      break;
+    case commandNames.drawSquare:
+      await drawSquare(firstParam);
+      duplexStream.write(commandName);
+      break;
+    case commandNames.drawRectangle:
       break;
     case commandNames.mouseDown:
     case commandNames.mouseUp:
     case commandNames.mouseLeft:
     case commandNames.mouseRight:
-      await mouseMove(command.name, Number(command.params[0]));
-      duplexStream.write(command.name);
+      await mouseMove(commandName, firstParam);
+      duplexStream.write(commandName);
       break;
     default:
       break;
