@@ -24,22 +24,26 @@ export const drawCircle = async (radius: number) => {
   await mouse.releaseButton(leftButton);
 };
 
-export const drawSquare = async (height: number) => {
+export const drawSquare = async (width: number) => {
+  await drawRectangle(width, width);
+};
+
+export const drawRectangle = async (width: number, length: number) => {
   const leftButton = Button.LEFT;
   const currentPoint: Point = await getCurrentMousePoint();
 
   await mouse.pressButton(leftButton);
 
-  const newPoint = { x: currentPoint.x + height, y: currentPoint.y };
+  const newPoint = { x: currentPoint.x + width, y: currentPoint.y };
   await mouse.move(straightTo(newPoint));
 
-  newPoint.y = newPoint.y - height;
+  newPoint.y = newPoint.y - length;
   await mouse.move(straightTo(newPoint));
 
-  newPoint.x = newPoint.x - height;
+  newPoint.x = newPoint.x - width;
   await mouse.move(straightTo(newPoint));
 
-  newPoint.y = newPoint.y + height;
+  newPoint.y = newPoint.y + length;
   await mouse.move(straightTo(newPoint));
 
   await mouse.releaseButton(leftButton);

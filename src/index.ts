@@ -1,5 +1,5 @@
 import { Command } from './types';
-import { drawCircle, drawSquare } from './draw-figures';
+import { drawCircle, drawRectangle, drawSquare } from './draw-figures';
 import WebSocketServer, { createWebSocketStream } from 'ws';
 import { getCurrentMousePoint, parseMessage } from './helpers';
 import { commandNames } from './constants';
@@ -9,33 +9,34 @@ import { mouseMove } from './mouse-move';
 const runCommand = async (command: Command, duplexStream: Duplex) => {
   const { name: commandName, params } = command;
   const firstParam = Number(params[0]);
+  const secondParam = Number(params[1]) ?? 0;
 
   switch (commandName) {
     case commandNames.drawCircle:
       await drawCircle(firstParam);
-      duplexStream.write(commandName);
       break;
     case commandNames.drawSquare:
       await drawSquare(firstParam);
-      duplexStream.write(commandName);
       break;
     case commandNames.drawRectangle:
+      await drawRectangle(firstParam, secondParam);
       break;
     case commandNames.mouseDown:
     case commandNames.mouseUp:
     case commandNames.mouseLeft:
     case commandNames.mouseRight:
       await mouseMove(commandName, firstParam);
-      duplexStream.write(commandName);
       break;
     default:
       break;
   }
 
+  duplexStream.write(commandName);
+
   const position = await getCurrentMousePoint();
   console.log('x=', position.x, ' y=', position.y);
 
-  duplexStream.write(`mouse_position_${position.x},${position.y}`);
+  duplexStream.write(`mouse_position ${position.x},${position.y}`);
 };
 
 const onConnect = (ws: WebSocketServer) => {
