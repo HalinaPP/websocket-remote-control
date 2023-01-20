@@ -1,9 +1,10 @@
 import { circlePoints } from './constants';
 import { straightTo, mouse, Button, Point } from '@nut-tree/nut-js';
-import { Coordinate } from './types';
+import { getCurrentMousePoint } from './helpers';
 
-export const drawCircle = async (radius: number, currentPoint: Coordinate) => {
+export const drawCircle = async (radius: number) => {
   const leftButton = Button.LEFT;
+  const currentPoint: Point = await getCurrentMousePoint();
   const center = { x: currentPoint.x - 100, y: currentPoint.y };
 
   await mouse.pressButton(leftButton);

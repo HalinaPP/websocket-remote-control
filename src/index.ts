@@ -1,23 +1,32 @@
-import { Coordinate, Command } from './types';
+import { Command } from './types';
 import { drawCircle } from './draw-figures';
 import WebSocketServer, { createWebSocketStream } from 'ws';
-import { mouse } from '@nut-tree/nut-js';
-import { parseMessage } from './helpers';
+import { getCurrentMousePoint, parseMessage } from './helpers';
 import { commandNames } from './constants';
 import { Duplex } from 'stream';
+import { mouseMove } from './mouse-move';
 
 const runCommand = async (command: Command, duplexStream: Duplex) => {
-  const position: Coordinate = await mouse.getPosition();
-  console.log('x=', position.x, ' y=', position.y);
-
   switch (command.name) {
     case commandNames.drawCircle:
-      await drawCircle(Number(command.params[0]), position);
+      await drawCircle(Number(command.params[0]));
+      duplexStream.write(command.name);
+      break;
+    case commandNames.mouseDown:
+    case commandNames.mouseUp:
+    case commandNames.mouseLeft:
+    case commandNames.mouseRight:
+      await mouseMove(command.name, Number(command.params[0]));
+      duplexStream.write(command.name);
       break;
     default:
-      duplexStream.write(`mouse_position ${position.x},${position.y}`);
       break;
   }
+
+  const position = await getCurrentMousePoint();
+  console.log('x=', position.x, ' y=', position.y);
+
+  duplexStream.write(`mouse_position_${position.x},${position.y}`);
 };
 
 const onConnect = (ws: WebSocketServer) => {
@@ -35,12 +44,12 @@ const onConnect = (ws: WebSocketServer) => {
     });
   });
 
-  ws.on('error', (err) => {
-    console.log(err.message);
-  });
-
   ws.on('close', () => {
     console.log('the client has connected');
+  });
+
+  ws.on('message', (message) => {
+    console.log('server=', message.toString());
   });
 };
 
