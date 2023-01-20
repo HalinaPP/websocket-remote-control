@@ -4,7 +4,7 @@
   "description": "A remote control backend using nutjs.dev library and websocket",
   "main": "index.ts",
   "scripts": {
-    "start:dev": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node\" src/index.ts",
+    "start": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node\" src/index.ts",
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix"
   },
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.11.18",
+    "@types/ws": "^8.5.4",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
     "dotenv": "^16.0.3",
