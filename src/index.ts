@@ -2,9 +2,10 @@ import { Command } from './types';
 import { drawCircle, drawRectangle, drawSquare } from './draw-figures';
 import WebSocketServer, { createWebSocketStream } from 'ws';
 import { parseMessage } from './helpers';
-import { commandNames } from './constants';
+import { commandNames, WS_PORT, HTTP_PORT } from './constants';
 import { Duplex } from 'stream';
 import { mouseMove, sendMousePosition } from './mouse-move';
+import { app } from './server';
 
 const runCommand = async (command: Command, duplexStream: Duplex) => {
   const { name: commandName, params } = command;
@@ -14,18 +15,22 @@ const runCommand = async (command: Command, duplexStream: Duplex) => {
   switch (commandName) {
     case commandNames.drawCircle:
       await drawCircle(firstParam);
+      duplexStream.write(commandName);
       break;
     case commandNames.drawSquare:
       await drawSquare(firstParam);
+      duplexStream.write(commandName);
       break;
     case commandNames.drawRectangle:
       await drawRectangle(firstParam, secondParam);
+      duplexStream.write(commandName);
       break;
     case commandNames.mouseDown:
     case commandNames.mouseUp:
     case commandNames.mouseLeft:
     case commandNames.mouseRight:
       await mouseMove(commandName, firstParam);
+      duplexStream.write(commandName);
       break;
     case commandNames.mousePosition:
       await sendMousePosition(duplexStream);
@@ -40,11 +45,11 @@ const runCommand = async (command: Command, duplexStream: Duplex) => {
 };
 
 const onConnect = (ws: WebSocketServer) => {
-  console.log('new connection');
+  console.log(`Websocket connected on ${WS_PORT} port`);
   const webSocketStream = createWebSocketStream(ws, { encoding: 'utf8', decodeStrings: false });
 
   webSocketStream.on('data', async (message) => {
-    console.log('mes=', message);
+    console.log(message);
     const command = parseMessage(message);
 
     await runCommand(command, webSocketStream);
@@ -55,14 +60,20 @@ const onConnect = (ws: WebSocketServer) => {
   });
 
   ws.on('close', () => {
-    console.log('closed');
+    console.log(`Websocket closed on ${WS_PORT} port`);
+  });
+
+  process.on('SIGINT', () => {
+    process.stdout.write('Closing websocket...\n');
+    ws.close();
+    process.exit(0);
   });
 };
 
-const wsServer = new WebSocketServer.Server({ port: 8080 });
+app.listen(HTTP_PORT, () => {
+  console.log(`Http server started on ${HTTP_PORT} port`);
+});
+
+const wsServer = new WebSocketServer.Server({ port: WS_PORT });
 
 wsServer.on('connection', onConnect);
-
-wsServer.on('message', (message) => {
-  console.log('server0=', message.toString());
-});
