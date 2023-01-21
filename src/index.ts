@@ -5,7 +5,7 @@ import { parseMessage } from './helpers';
 import { commandNames, WS_PORT, HTTP_PORT } from './constants';
 import { Duplex } from 'stream';
 import { mouseMove, sendMousePosition } from './mouse-move';
-import { app } from './server';
+import { httpServer } from './server';
 
 const runCommand = async (command: Command, duplexStream: Duplex) => {
   const { name: commandName, params } = command;
@@ -70,9 +70,8 @@ const onConnect = (ws: WebSocketServer) => {
   });
 };
 
-app.listen(HTTP_PORT, () => {
-  console.log(`Http server started on ${HTTP_PORT} port`);
-});
+console.log(`Start static http server on the ${HTTP_PORT} port!`);
+httpServer.listen(HTTP_PORT);
 
 const wsServer = new WebSocketServer.Server({ port: WS_PORT });
 

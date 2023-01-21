@@ -1,18 +1,17 @@
-import http from 'http';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as http from 'http';
 
-export const app = http.createServer((req, res) => {
-  try {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.write(JSON.stringify('Server started'));
-    res.end();
-  } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.write(JSON.stringify('INTERNAL SERVER ERROR'));
-    res.end();
-  }
-});
-
-process.on('uncaughtException', (error: Error) => {
-  console.error(error.stack);
-  process.exit(1);
+export const httpServer = http.createServer(function (req, res) {
+    const __dirname = path.resolve(path.dirname(''));
+    const file_path = __dirname + (req.url === '/' ? '/front/index.html' : '/front' + req.url);
+    fs.readFile(file_path, function (err, data) {
+        if (err) {
+            res.writeHead(404);
+            res.end(JSON.stringify(err));
+            return;
+        }
+        res.writeHead(200);
+        res.end(data);
+    });
 });
