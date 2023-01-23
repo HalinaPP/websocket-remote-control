@@ -9,44 +9,44 @@ import { httpServer } from './server';
 import { printScreen } from './create-screenshot';
 
 const runCommand = async (command: Command, duplexStream: Duplex) => {
-  const { name: commandName, params } = command;
-  const firstParam = Number(params[0]);
-  const secondParam = Number(params[1]) ?? 0;
+  try {
+    const { name: commandName, params } = command;
+    const firstParam = Number(params[0]);
+    const secondParam = Number(params[1]) ?? 0;
 
-  switch (commandName) {
-    case commandNames.drawCircle:
-      await drawCircle(firstParam);
-      duplexStream.write(commandName);
-      break;
-    case commandNames.drawSquare:
-      await drawSquare(firstParam);
-      duplexStream.write(commandName);
-      break;
-    case commandNames.drawRectangle:
-      await drawRectangle(firstParam, secondParam);
-      duplexStream.write(commandName);
-      break;
-    case commandNames.mouseDown:
-    case commandNames.mouseUp:
-    case commandNames.mouseLeft:
-    case commandNames.mouseRight:
-      await mouseMove(commandName, firstParam);
-      duplexStream.write(commandName);
-      break;
-    case commandNames.mousePosition:
-      await sendMousePosition(duplexStream);
-      break;
-    case commandNames.printScreen:
-      await printScreen(duplexStream);
-      duplexStream.write(commandName);
-      break;
-    default:
-      break;
+    switch (commandName) {
+      case commandNames.drawCircle:
+        await drawCircle(firstParam);
+        duplexStream.write(commandName);
+        break;
+      case commandNames.drawSquare:
+        await drawSquare(firstParam);
+        duplexStream.write(commandName);
+        break;
+      case commandNames.drawRectangle:
+        await drawRectangle(firstParam, secondParam);
+        duplexStream.write(commandName);
+        break;
+      case commandNames.mouseDown:
+      case commandNames.mouseUp:
+      case commandNames.mouseLeft:
+      case commandNames.mouseRight:
+        await mouseMove(commandName, firstParam);
+        duplexStream.write(commandName);
+        break;
+      case commandNames.mousePosition:
+        await sendMousePosition(duplexStream);
+        break;
+      case commandNames.printScreen:
+        await printScreen(duplexStream);
+        duplexStream.write(commandName);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {
+    console.log('Error during running command:', error.message);
   }
-
-  /* duplexStream.write(commandName, () => {
-     console.log(commandName, ' finished');
-   });*/
 };
 
 const onConnect = (ws: WebSocketServer) => {
@@ -54,10 +54,12 @@ const onConnect = (ws: WebSocketServer) => {
   const webSocketStream = createWebSocketStream(ws, { encoding: 'utf8', decodeStrings: false });
 
   webSocketStream.on('data', async (message) => {
-    console.log(message);
+    console.log(`get command from client: ${message}`);
     const command = parseMessage(message);
 
     await runCommand(command, webSocketStream);
+
+    console.log(`command '${message}' completed`);
 
     webSocketStream.on('error', (err) => {
       console.log(err.message);
@@ -69,7 +71,7 @@ const onConnect = (ws: WebSocketServer) => {
   });
 
   process.on('SIGINT', () => {
-    process.stdout.write('Closing websocket...\n');
+    process.stdout.write('Close websocket\n');
     ws.close();
     process.exit(0);
   });

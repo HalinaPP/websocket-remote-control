@@ -32,7 +32,8 @@ export const mouseMove = async (commandName: string, length: number) => {
 
 export const sendMousePosition = async (duplexStream: Duplex) => {
   const position = await getCurrentMousePoint();
-  console.log('x=', position.x, ' y=', position.y);
 
   duplexStream.write(`mouse_position ${position.x},${position.y}`);
+
+  console.log(`current mouse_position:  ${position.x},${position.y}`);
 };

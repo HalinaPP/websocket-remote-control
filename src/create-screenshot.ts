@@ -38,8 +38,11 @@ export const printScreen = async (duplexStream: Duplex) => {
     const grabbedImage = await grabImage();
     const { width, height, data } = grabbedImage;
 
+    console.log(`screenshot image buffer has size:  ${data.byteLength} bytes`);
+
     new Jimp({ data, width, height }, async (err, image) => {
       const base64 = await getBase64(image);
+
       duplexStream.write(`prnt_scrn ${base64}`);
     });
   } catch (error) {
