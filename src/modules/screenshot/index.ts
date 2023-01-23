@@ -1,12 +1,12 @@
 import { Duplex } from 'stream';
-import { getCurrentMousePoint } from './helpers';
 import Jimp from 'jimp';
 import { Point, providerRegistry, Region, ScreenClass } from '@nut-tree/nut-js';
-import { IMAGE_DIMENSIONS } from './constants';
+import { IMAGE_DIMENSION } from '../../utils/constants';
+import { getCurrentMousePoint } from '../mouse';
 
 const getRegion = async () => {
   try {
-    const { width, height } = IMAGE_DIMENSIONS;
+    const { width, height } = IMAGE_DIMENSION;
     const currentMousePoint: Point = await getCurrentMousePoint();
     return new Region(currentMousePoint.x - width / 2, currentMousePoint.y - height / 2, width, height);
   } catch (error) {

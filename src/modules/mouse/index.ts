@@ -1,9 +1,12 @@
 import { Duplex } from 'stream';
 import { mouse, Point, straightTo } from '@nut-tree/nut-js';
-import { directions } from './constants';
-import { getCurrentMousePoint } from './helpers';
+import { directions } from '../../utils/constants';
 
-export const mouseMove = async (commandName: string, length: number) => {
+export const getCurrentMousePoint = async (): Promise<Point> => {
+  return await mouse.getPosition();
+};
+
+export const moveMouseCursor = async (commandName: string, length: number) => {
   const [, direction] = commandName.split('_');
   const currentPoint: Point = await getCurrentMousePoint();
 

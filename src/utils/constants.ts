@@ -20,4 +20,4 @@ export const directions = { left: 'left', right: 'right', up: 'up', down: 'down'
 
 export const circlePoints = 360;
 
-export const IMAGE_DIMENSIONS = { width: 200, height: 200 };
+export const IMAGE_DIMENSION = { width: 200, height: 200 };

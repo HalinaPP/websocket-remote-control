@@ -1,53 +1,8 @@
-import { Command } from './types';
-import { drawCircle, drawRectangle, drawSquare } from './draw-figures';
 import WebSocketServer, { createWebSocketStream } from 'ws';
-import { parseMessage } from './helpers';
-import { commandNames, WS_PORT, HTTP_PORT } from './constants';
-import { Duplex } from 'stream';
-import { mouseMove, sendMousePosition } from './mouse-move';
+import { WS_PORT, HTTP_PORT } from './utils/constants';
+import { parseMessage } from './utils/helpers';
+import { runCommand } from './modules/processCommand';
 import { httpServer } from './server';
-import { printScreen } from './create-screenshot';
-
-const runCommand = async (command: Command, duplexStream: Duplex) => {
-  try {
-    const { name: commandName, params } = command;
-    const firstParam = Number(params[0]);
-    const secondParam = Number(params[1]) ?? 0;
-
-    switch (commandName) {
-      case commandNames.drawCircle:
-        await drawCircle(firstParam);
-        duplexStream.write(commandName);
-        break;
-      case commandNames.drawSquare:
-        await drawSquare(firstParam);
-        duplexStream.write(commandName);
-        break;
-      case commandNames.drawRectangle:
-        await drawRectangle(firstParam, secondParam);
-        duplexStream.write(commandName);
-        break;
-      case commandNames.mouseDown:
-      case commandNames.mouseUp:
-      case commandNames.mouseLeft:
-      case commandNames.mouseRight:
-        await mouseMove(commandName, firstParam);
-        duplexStream.write(commandName);
-        break;
-      case commandNames.mousePosition:
-        await sendMousePosition(duplexStream);
-        break;
-      case commandNames.printScreen:
-        await printScreen(duplexStream);
-        duplexStream.write(commandName);
-        break;
-      default:
-        break;
-    }
-  } catch (error) {
-    console.log('Error during running command:', error.message);
-  }
-};
 
 const onConnect = (ws: WebSocketServer) => {
   console.log(`Websocket connected on ${WS_PORT} port`);
@@ -60,10 +15,10 @@ const onConnect = (ws: WebSocketServer) => {
     await runCommand(command, webSocketStream);
 
     console.log(`command '${message}' completed`);
+  });
 
-    webSocketStream.on('error', (err) => {
-      console.log(err.message);
-    });
+  webSocketStream.on('error', (err) => {
+    console.log(err.message);
   });
 
   ws.on('close', () => {
