@@ -6,6 +6,7 @@ export const drawCircle = async (radius: number) => {
   const leftButton = Button.LEFT;
   const currentPoint: Point = await getCurrentMousePoint();
   const center = { x: currentPoint.x - radius, y: currentPoint.y };
+  mouse.config.mouseSpeed = 400;
 
   await mouse.pressButton(leftButton);
 
@@ -31,6 +32,8 @@ export const drawSquare = async (width: number) => {
 export const drawRectangle = async (width: number, length: number) => {
   const leftButton = Button.LEFT;
   const currentPoint: Point = await getCurrentMousePoint();
+
+  mouse.config.mouseSpeed = 100;
 
   await mouse.pressButton(leftButton);
 

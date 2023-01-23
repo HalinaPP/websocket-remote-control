@@ -6,6 +6,7 @@ import { commandNames, WS_PORT, HTTP_PORT } from './constants';
 import { Duplex } from 'stream';
 import { mouseMove, sendMousePosition } from './mouse-move';
 import { httpServer } from './server';
+import { printScreen } from './create-screenshot';
 
 const runCommand = async (command: Command, duplexStream: Duplex) => {
   const { name: commandName, params } = command;
@@ -34,6 +35,10 @@ const runCommand = async (command: Command, duplexStream: Duplex) => {
       break;
     case commandNames.mousePosition:
       await sendMousePosition(duplexStream);
+      break;
+    case commandNames.printScreen:
+      await printScreen(duplexStream);
+      duplexStream.write(commandName);
       break;
     default:
       break;

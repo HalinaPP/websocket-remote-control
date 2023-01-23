@@ -13,8 +13,11 @@ export const commandNames = {
   mouseLeft: 'mouse_left',
   mouseRight: 'mouse_right',
   mousePosition: 'mouse_position',
+  printScreen: 'prnt_scrn',
 };
 
 export const directions = { left: 'left', right: 'right', up: 'up', down: 'down' };
 
 export const circlePoints = 360;
+
+export const IMAGE_DIMENSIONS = { width: 200, height: 200 };
