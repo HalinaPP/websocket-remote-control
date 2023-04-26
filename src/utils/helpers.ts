@@ -1,7 +1,6 @@
 import { Command } from './types';
 
 export const parseMessage = (message: string): Command => {
-  const messageParts = message.split(' ');
-  const [name, ...params] = messageParts;
+  const [name, ...params] = message.split(' ');
   return { name, params };
 };
